@@ -12,7 +12,8 @@ int main()
     //input();
     //experimental sus function
     
-    solve_sus_equation();
+    int num = solve_sus_equation(0.000001, -1000, 500);
+    cout << "\n" << num << " is the number of total solutions.";
     
 }
 

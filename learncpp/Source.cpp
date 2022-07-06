@@ -6,6 +6,9 @@
 #include <Windows.h>
 #include <vector>
 #include <numeric>
+#include <algorithm>
+#include <iomanip>
+
 using namespace std;
 
 
@@ -95,69 +98,97 @@ void input() {
 }
 
 
-
-void solve_sus_equation() {
-    double x = 0;
-    double combined = 100;
+double f(double arg) {
+    return exp(arg) / (arg * (arg - 1) * sin(arg)) - 5;
+}
+bool test_root(double begin, double end) {
+    double eval_begin = f(begin);
+    double eval_end = f(end);
     
-    
-    while (true) {
-        double increment = 0.000001;
-
-        vector<double> last_five_diff;
-
-        double comb1 = 0;
+    if (eval_end * eval_begin < 0) {
+        return true;
+    }
+    else if (eval_end * eval_begin > 0) {
+        return false;
+    }
+    else {
         
-        
+        return true;
+    }
+}
+//{{1,2}, {4,5}}
+vector<vector<double>> find_intervals(double inilow, double inihigh) {
+    double i = inilow;
+    vector<vector<double>> result;
+    while (i < inihigh) {
+        double eval = f(i);
+        double eval2 = f(i + 3);
 
-        while (abs(combined) > 0.001) {
-
-            x += increment;
-            //fix this please
-            combined = exp(x) / (x * (x - 1) * sin(x)) - 5;
+        if (test_root(eval, eval2)) {
             
-            cout << x << "          " << combined << "\n";
-            double diff = abs(comb1 - combined);
-
-            double real_difference = 0;
-
-            if (last_five_diff.size() < 5) {
-                last_five_diff.insert(last_five_diff.begin(), diff);
-            }
-            else {
-                last_five_diff.pop_back();
-
-                last_five_diff.insert(last_five_diff.begin(), diff);
-
-                real_difference = last_five_diff[0] - last_five_diff[4];
-
-                
-
-
-            }
-            if (real_difference > 0) {
-                increment -= 0.0001;
-            }
-            else {
-                increment += 0.00001;
-            }
-
-            
-
-            double comb1 = combined;
+            result.push_back({i, i+3});
 
 
         }
 
-        cout << x << " - " << combined;
+        i++;
+    }
+    return result;
+}
+double bisection(double lb, double ub, double precision) {
+    if (test_root(lb, ub)) {
+        while ((ub - lb) / 2 > precision) {
+            bool lower_interval = test_root(lb, (lb + ub) / 2);
+            bool upper_interval = test_root((lb + ub) / 2, ub);
 
-        //work on this more
+            if (lower_interval) {
+                lb = lb;
+                ub = (lb + ub) / 2;
+
+            } 
+            else if (upper_interval) {
+                lb = (lb + ub) / 2;
+                ub = ub;
+            }
+            else {
+                lb = lb;
+                ub = ub;
+            }
+
+
+        }
+        cout << "The root is between " << lb << " and " << ub << ", += " << precision/2 << " AR" << "\n";
+
+        return (lb + ub) / 2;
     }
     
-
-
+}
+int solve_sus_equation(double precision, double lower, double upper) {
+    int numroots = 0;
+   
+    vector<double> roots;
+    double lb = lower;
+    double ub = upper;
+    vector<vector<double>> total_intervals = find_intervals(lb, ub);
     
-    
-    
+    if (total_intervals.size() == 0) {
+        cout << "No solution exists!";
+        
+    }
+    else {
+        for (int x = 0; x < total_intervals.size(); x++) {
+            double root = bisection(total_intervals[x][0], total_intervals[x][1], precision);
+            roots.push_back(root);
+            numroots++;
+        }
+    }
 
+    cout << numroots << " is the number of roots found \n";
+    auto last = unique(roots.begin(), roots.end());
+    roots.erase(last, roots.end());
+    for (const auto& i : roots)
+        cout << fixed << setprecision(6) << i << "\n";
+
+    return numroots;
+    
 }
