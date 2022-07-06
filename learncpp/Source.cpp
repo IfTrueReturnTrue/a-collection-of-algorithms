@@ -105,10 +105,10 @@ bool test_root(double begin, double end) {
     double eval_begin = f(begin);
     double eval_end = f(end);
     
-    if (eval_end * eval_begin < 0) {
+    if (eval_begin* eval_end < 0) {
         return true;
     }
-    else if (eval_end * eval_begin > 0) {
+    else if (eval_begin * eval_end > 0) {
         return false;
     }
     else {
@@ -121,23 +121,22 @@ vector<vector<double>> find_intervals(double inilow, double inihigh) {
     double i = inilow;
     vector<vector<double>> result;
     while (i < inihigh) {
-        double eval = f(i);
-        double eval2 = f(i + 3);
+        
 
-        if (test_root(eval, eval2)) {
+        if (test_root(i, i+0.1)) {
             
-            result.push_back({i, i+3});
+            result.push_back({i, i+0.1});
 
 
         }
 
-        i++;
+        i += 0.1;
     }
     return result;
 }
 double bisection(double lb, double ub, double precision) {
     if (test_root(lb, ub)) {
-        while ((ub - lb) / 2 > precision) {
+        while (abs((ub - lb) / 2) > precision) {
             bool lower_interval = test_root(lb, (lb + ub) / 2);
             bool upper_interval = test_root((lb + ub) / 2, ub);
 
@@ -157,11 +156,14 @@ double bisection(double lb, double ub, double precision) {
 
 
         }
-        cout << "The root is between " << lb << " and " << ub << ", += " << precision/2 << " AR" << "\n";
+        
 
         return (lb + ub) / 2;
     }
     
+}
+double rounds(double value, int decimal) {
+    return round(value * pow(10, decimal)) / pow(10, decimal);
 }
 int solve_sus_equation(double precision, double lower, double upper) {
     int numroots = 0;
@@ -178,7 +180,7 @@ int solve_sus_equation(double precision, double lower, double upper) {
     else {
         for (int x = 0; x < total_intervals.size(); x++) {
             double root = bisection(total_intervals[x][0], total_intervals[x][1], precision);
-            roots.push_back(root);
+            roots.push_back(rounds(root, 5));
             numroots++;
         }
     }
@@ -187,7 +189,7 @@ int solve_sus_equation(double precision, double lower, double upper) {
     auto last = unique(roots.begin(), roots.end());
     roots.erase(last, roots.end());
     for (const auto& i : roots)
-        cout << fixed << setprecision(6) << i << "\n";
+        cout << fixed << setprecision(8) << i << "\n";
 
     return numroots;
     
