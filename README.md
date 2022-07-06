@@ -1,2 +1,3 @@
-# a-collection-of-algorithms
-A collection of algorithms, written in c++. 
+# A collection of algorithms
+
+A few programs, experimenting with c++
